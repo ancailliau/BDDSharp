@@ -176,6 +176,61 @@ namespace BDDSharp
             }
         }
 
+        public BDD Compose (BDD b1, BDD b2, int i) {
+            var bdd = new BDD (b1.variablesCount);
+            b1.Root.SetIdentifier(0);
+            b2.Root.SetIdentifier(0);
+            var T = new Node[b1.Root.Nodes.Count() + 1, b1.Root.Nodes.Count() + 1, b2.Root.Nodes.Count() + 1];
+            ComposeStep (b1.Root, b1.Root, b2.Root, i, T, bdd);
+            return bdd;
+        }
+
+        Node ComposeStep (Node vlow1, Node vhigh1, Node v2, int i, Node[,,] T, BDD bdd)
+        {
+            // Perform restrictions
+            if (vlow1.Index == i) { vlow1 = vlow1.Low; }
+            if (vhigh1.Index == i) { vhigh1 = vhigh1.High; }
+
+            // Apply operation ITE
+            var u = T[vlow1.Identifier, vhigh1.Identifier, v2.Identifier];
+            if (u != null) return u;
+
+            u = new Node (vlow1.N);
+            u.Value = (!v2.Value & vlow1.Value) | (v2.Value & vhigh1.Value);
+            if (u.Value != null) {
+                u = ((bool) u.Value) ? bdd.One : bdd.Zero;
+            }
+            T[vlow1.Identifier, vhigh1.Identifier, v2.Identifier] = u;
+
+            if (u.Value == null) {
+                Node vll1, vlh1, vhl1, vhh1, vlow2, vhigh2;
+
+                u.Index = Math.Min (Math.Min (vlow1.Index, vhigh1.Index), v2.Index);
+                if (vlow1.Index == u.Index) {
+                    vll1 = vlow1.Low; vlh1 = vlow1.High;
+                } else {
+                    vll1 = vlow1; vlh1 = vlow1;
+                }
+
+                if (vhigh1.Index == u.Index) {
+                    vhl1 = vhigh1.Low; vhh1 = vhigh1.High;
+                } else {
+                    vhl1 = vhigh1; vhh1 = vhigh1;
+                }
+
+                if (v2.Index == u.Index) {
+                    vlow2 = v2.Low; vhigh2 = v2.High;
+                } else {
+                    vlow2 = v2; vhigh2 = v2;
+                }
+
+                u.Low = ComposeStep (vll1, vhl1, vlow2, i, T, bdd);
+                u.High = ComposeStep (vlh1, vhh1, vhigh2, i, T, bdd);
+            }
+
+            return u;
+        }
+
         public object ToDot ()
         {
             var nodes = Root.Nodes.ToList ();
