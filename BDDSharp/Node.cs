@@ -44,13 +44,8 @@ namespace BDDSharp
         public void Reduce ()
         {
             var nodes = Root.Nodes.ToList ();
-
-            int i = 0;
-            foreach (var node in nodes) {
-                node.Identifier = i++;
-            }
-
-            for (i = variablesCount; i >= 0; i--) {
+            Root.SetIdentifier (0);
+            for (int i = variablesCount; i >= 0; i--) {
                 var Vi = nodes.Where (x => x.Index == i).ToList ();
                 var Vi2 = nodes.Where (x => x.Index == i).ToList ();
 
@@ -150,6 +145,35 @@ namespace BDDSharp
             u.High = ApplyStep (vhigh1, vhigh2, cache, op, bdd);
 
             return u;
+        }
+
+        public void Restrict (int index, bool value)
+        {
+            if (Root.Index == index)
+                Root = value ? Root.High : Root.Low;
+            else
+                RestrictStep (Root, index, value);
+            Reduce ();
+        }
+
+        void RestrictStep (Node n, int index, bool value)
+        {
+            n.Mark = !n.Mark;
+
+            if (n.Index <= n.N) {
+                if (n.Mark != n.Low.Mark) {
+                    if (n.Low.Index == index)
+                        n.Low = value ? n.Low.High : n.Low.Low;
+                    else
+                        RestrictStep (n.Low, index, value);
+                }
+                if (n.Mark != n.High.Mark) {
+                    if (n.High.Index == index)
+                        n.High = value ? n.High.High : n.High.Low;
+                    else
+                        RestrictStep (n.High, index, value);
+                }
+            }
         }
 
         public object ToDot ()
