@@ -231,6 +231,37 @@ namespace BDDSharp
             return u;
         }
 
+//        public bool SatisfyOne (BDD b1, int[] x)
+//        {
+//        }
+//
+//        bool SatisfyOneStep (Node v, int[] x)
+//        {
+//            if (v.Value == false) return false;
+//            if (v.Value == true) return true;
+//            x[i] = 0;
+//            if (SatisfyOneStep(v.Low, x)) return true;
+//            x[i] = 1;
+//            return SatisfyOneStep (v.High, x);
+//        }
+
+        void SatisfyAllStep (int i, Node v, int[] x)
+        {
+            if (v.Value = false) return;
+            if (i = variablesCount + 1 && v.Value = true) {
+                Console.WriteLine (string.Join (",", x));
+                return;
+            }
+
+            if (v.Index > i) {
+                x[i] = 0; SatisfyAllStep (i + 1, v, x);
+                x[i] = 1; SatisfyAllStep (i + 1, v, x);
+            } else {
+                x[i] = 0; SatisfyAllStep (i + 1, v.Low, x);
+                x[i] = 1; SatisfyAllStep (i + 1, v.High, x);
+            }
+        }
+
         public object ToDot ()
         {
             var nodes = Root.Nodes.ToList ();
