@@ -24,7 +24,7 @@ using the same manager.
 
 For instance, to represents the following BDD, 
 
-[[https://github.com/ancailliau/BDDSharp/wiki/img/unreduced.dot.png]]
+![BDD](http://github.com/ancailliau/BDDSharp/wiki/img/unreduced.dot.png)
 
 you could type the following code
 
@@ -44,7 +44,7 @@ manager.Reduce (root);
 
 Applied to the previous example, you ends up with the following BDD
 
-[[https://github.com/ancailliau/BDDSharp/wiki/img/reduced.dot.png]]
+![BDD](https://github.com/ancailliau/BDDSharp/wiki/img/reduced.dot.png)
 
 To combine multiple BDDs using the ITE operator, just call the corresponding
 function
@@ -55,10 +55,10 @@ manager.ite (f, g, h)
 
 For instance, consider the following BDDs (f, g and h respectively)
 
-[[https://github.com/ancailliau/BDDSharp/wiki/img/f.dot.png]]
-[[https://github.com/ancailliau/BDDSharp/wiki/img/g.dot.png]]
-[[https://github.com/ancailliau/BDDSharp/wiki/img/h.dot.png]]
+![BDD](https://github.com/ancailliau/BDDSharp/wiki/img/f.dot.png)
+![BDD](https://github.com/ancailliau/BDDSharp/wiki/img/g.dot.png)
+![BDD](https://github.com/ancailliau/BDDSharp/wiki/img/h.dot.png)
 
 The resulting BDDs returned by applying ITE operator is given by
 
-[[https://github.com/ancailliau/BDDSharp/wiki/img/ite.dot.png]]
+![BDD](https://github.com/ancailliau/BDDSharp/wiki/img/ite.dot.png)
