@@ -60,6 +60,8 @@ namespace BDDSharp
             int nextid = 0;
             for (int i = N; i >= 0; i--) {
                 var Q = new List<BDDNode> ();
+                if (vlist[i] == null)
+                    continue;
 
                 foreach (var u in vlist[i]) {
                     if (u.Index == N) {
