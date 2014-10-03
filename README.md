@@ -24,7 +24,7 @@ using the same manager.
 
 For instance, to represents the following BDD, 
 
-![BDD](http://github.com/ancailliau/BDDSharp/wiki/img/unreduced.dot.png)
+![BDD](https://github.com/ancailliau/BDDSharp/wiki/img/unreduced.dot.png)
 
 you could type the following code
 
