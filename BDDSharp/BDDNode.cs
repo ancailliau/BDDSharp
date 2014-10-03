@@ -66,6 +66,8 @@ namespace BDDSharp
         /// <value>The key.</value>
         public Tuple<int, int> Key {
             get {
+                if (IsZero) return new Tuple <int, int>(-1, -1);
+                if (IsOne) return new Tuple <int, int>(-1, 0);
                 return new Tuple <int, int>(Low.Id, High.Id);
             }
         }

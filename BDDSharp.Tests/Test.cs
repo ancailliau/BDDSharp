@@ -6,6 +6,7 @@ namespace BDDSharp.Tests
     [TestFixture()]
     public class Test
     {
+        /*
         [Test()]
         public void TestITE()
         {
@@ -34,6 +35,7 @@ namespace BDDSharp.Tests
             Console.WriteLine ("--");
             Console.WriteLine (res.ToDot ());
         }
+        */
 
         //        [Test ()]
         //        public void TestRestrictToHigh ()

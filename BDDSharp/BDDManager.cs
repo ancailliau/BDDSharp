@@ -34,64 +34,73 @@ namespace BDDSharp
         public BDDManager (int n)
         {
             this.N = n;
-            this.Zero = new BDDNode (n + 1, false);
-            this.One = new BDDNode (n + 1, true);
+            this.Zero = new BDDNode (n, false);
+            this.One = new BDDNode (n, true);
         }
-
-        /*
-        void RedirectEdges(List<Node> nodes, Node oldNode, Node newNode)
-        {
-            var incomingLow = nodes.Where(x => x.Low != null && x.Low.Identifier == oldNode.Identifier);
-            foreach (var iv in incomingLow)
-                iv.Low = newNode;
-            
-            var incomingHigh = nodes.Where(x => x.High != null && x.High.Identifier == oldNode.Identifier);
-            foreach (var iv in incomingHigh) {
-                iv.High = newNode;
-            }
-        }
-
-        public void Reduce(Node n)
-        {
-            var nodes = n.Nodes.ToList();
-            n.SetIdentifiers(0);
-            for (int i = N; i >= 0; i--) {
-                var Vi = nodes.Where(x => x.Index == i).ToList();
-                var Vi2 = nodes.Where(x => x.Index == i).ToList();
-
-                // Elimination rule
-                foreach (var v in Vi) {
-                    if (v.Low.Identifier == v.High.Identifier) {
-                        Vi2.Remove(v);
-                        RedirectEdges(nodes, v, v.Low);
-                        if (v.Identifier == n.Identifier) {
-                            Root = v.Low;
-                        }
-                    }
-                }
-
-                // Merging rule
-                var oldKey = new Tuple <int, int>(0, 0);
-                Node oldNode = null;
-                foreach (var v in Vi2) {
-                    var key = v.Key;
-                    if (key.Item1 == oldKey.Item1 & key.Item2 == oldKey.Item2) {
-                        //Vi.Remove (v);
-                        RedirectEdges(nodes, v, oldNode);
-                        if (v.Identifier == n.Identifier) {
-                            Root = oldNode;
-                        }
-                    } else {
-                        oldNode = v;
-                        oldKey = v.Key;
-                    }
-                }
-            }
-        }
-        */
 
         /// <summary>
-        /// Restrict the specified bdd using the < c>positive</ c> and < c>negative</ c> sets.
+        /// Reduce the specified BDD.
+        /// </summary>
+        /// <param name="v">BDD to reduce.</param>
+        public BDDNode Reduce(BDDNode v)
+        {
+            var nodes = v.Nodes.ToArray ();
+            var size = nodes.Length;
+
+            var subgraph = new BDDNode[size];
+            var vlist = new List<BDDNode>[N + 1];
+
+            for (int i = 0; i < size; i++) {
+                if (vlist[nodes[i].Index] == null) 
+                    vlist[nodes[i].Index] = new List<BDDNode> ();
+
+                vlist[nodes[i].Index].Add (nodes[i]);
+            }
+
+            int nextid = 0;
+            for (int i = N; i >= 0; i--) {
+                var Q = new List<BDDNode> ();
+
+                foreach (var u in vlist[i]) {
+                    if (u.Index == N) {
+                        Q.Add (u);
+                    } else {
+                        if (u.Low.Id == u.High.Id) {
+                            u.Id = u.Low.Id;
+                        } else {
+                            Q.Add (u);
+                        }
+                    }
+                }
+
+                Q.Sort ((x, y) => {
+                    var xlk = x.Key.Item1;
+                    var xhk = x.Key.Item2;
+                    var ylk = y.Key.Item1;
+                    var yhk = y.Key.Item2;
+                    int res = xlk.CompareTo (ylk);
+                    return res == 0 ? xhk.CompareTo (yhk) : res;
+                });
+
+                var oldKey = new Tuple<int, int> (-2, -2);
+                foreach (var u in Q) {
+                    if (u.Key.Equals (oldKey)) {
+                        u.Id = nextid;
+                    } else {
+                        nextid++;
+                        u.Id = nextid;
+                        subgraph[nextid] = u;
+                        u.Low = u.Low == null ? null : subgraph[u.Low.Id];
+                        u.High = u.High == null ? null : subgraph[u.High.Id];
+                        oldKey = u.Key;
+                    }
+                }
+            }
+            return subgraph[v.Id];
+        }
+
+        /// <summary>
+        /// Restrict the specified bdd using the <c>positive</c> and <c>negative</c> sets.
         /// </summary>
         /// <param name="n">Node.</param>
         /// <param name="positive">Indexes of positive variables.</param>
@@ -124,7 +133,7 @@ namespace BDDSharp
         }
 
         /// <summary>
-        /// Performs the If-Then-Else operation on nodes < c>f</ c>, < c>g</ c>, < c>h</ c>.
+        /// Performs the If-Then-Else operation on nodes <c>f</c>, <c>g</c>, <c>h</c>.
         /// </summary>
         /// <param name="f">Node.</param>
         /// <param name="g">Node.</param>
@@ -170,27 +179,6 @@ namespace BDDSharp
         }
 
         /// <summary>
-        /// Returns the dot representation of the given node.
-        /// </summary>
-        /// <returns>The dot code.</returns>
-        public object ToDot(BDDNode root)
-        {
-            var nodes = root.Nodes.ToList();
-            var t = new StringBuilder("digraph G {\n");
-            foreach (var n in nodes) {
-                if (n.Index <= N) {
-                    t.Append("\t" + n.Id + " [label=\"x" + n.Index + " (id:" + n.Id + ")\"];\n");
-                    t.Append("\t" + n.Id + " -> " + n.High.Id + ";\n");
-                    t.Append("\t" + n.Id + " -> " + n.Low.Id + " [style=dotted];\n");
-                } else {
-                    t.Append("\t" + n.Id + " [shape=box,label=\"" + (((bool)n.Value) ? "1" : "0") + " (id:" + n.Id + ")\"];\n");
-                }
-            }
-            t.Append("}");
-            return t.ToString();
-        }
-
-        /// <summary>
         /// Negate the specified node.
         /// </summary>
         /// <param name="n">The node.</param>
@@ -201,6 +189,31 @@ namespace BDDSharp
             if (n.IsOne)
                 return Zero;
             return new BDDNode { Low = Negate(n.Low), High = Negate(n.High) };
+        }
+
+        /// <summary>
+        /// Returns the dot representation of the given node.
+        /// </summary>
+        /// <returns>The dot code.</returns>
+        public string ToDot(BDDNode root, Func<BDDNode, string> labelFunction = null)
+        {
+            if (labelFunction == null) {
+                labelFunction = new Func<BDDNode, string> ((n) => "x" + n.Index + " (Id: " + n.Id + ")");
+            }
+
+            var nodes = root.Nodes.ToList();
+            var t = new StringBuilder("digraph G {\n");
+            foreach (var n in nodes) {
+                if (n.Index < N) {
+                        t.Append("\t" + n.Id + " [label=\"" + labelFunction (n) + "\"];\n");
+                    t.Append("\t" + n.Id + " -> " + n.High.Id + ";\n");
+                    t.Append("\t" + n.Id + " -> " + n.Low.Id + " [style=dotted];\n");
+                } else {
+                    t.Append("\t" + n.Id + " [shape=box,label=\"" + (((bool)n.Value) ? "1" : "0") + " (id:" + n.Id + ")\"];\n");
+                }
+            }
+            t.Append("}");
+            return t.ToString();
         }
     }
 
