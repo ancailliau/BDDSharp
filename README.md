@@ -22,6 +22,12 @@ operations on BDD are located in the `BDDManager` class. When calling a
 function of the manager, it is your responsibility that BDDs were created
 using the same manager.
 
+For instance, to represents the following BDD, 
+
+[[https://github.com/ancailliau/BDDSharp/wiki/img/unreduced.dot.png]]
+
+you could type the following code
+
 ```csharp
 var manager = new BDDManager (3);
 var n3 = new BDDNode (2, manager.One, manager.One);
@@ -36,9 +42,23 @@ To reduce a BDD, you can call `BDDManager.Reduce (BDDNode)`.
 manager.Reduce (root);
 ```
 
+Applied to the previous example, you ends up with the following BDD
+
+[[https://github.com/ancailliau/BDDSharp/wiki/img/reduced.dot.png]]
+
 To combine multiple BDDs using the ITE operator, just call the corresponding
 function
 
 ```csharp
 manager.ite (f, g, h)
 ```
+
+For instance, consider the following BDDs (f, g and h respectively)
+
+[[https://github.com/ancailliau/BDDSharp/wiki/img/f.dot.png]]
+[[https://github.com/ancailliau/BDDSharp/wiki/img/g.dot.png]]
+[[https://github.com/ancailliau/BDDSharp/wiki/img/h.dot.png]]
+
+The resulting BDDs returned by applying ITE operator is given by
+
+[[https://github.com/ancailliau/BDDSharp/wiki/img/ite.dot.png]]
