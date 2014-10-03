@@ -15,9 +15,9 @@ namespace BDDSharp.Tests
             var n4 = new BDDNode (1, n3, manager.Zero);
             var n2 = new BDDNode (1, n3, manager.Zero);
             var root = new BDDNode (0, n2, n4);
-            var res = manager.Reduce (root);
         
             Console.WriteLine(manager.ToDot (root, (x) => "x" + x.Index));
+            var res = manager.Reduce (root);
             Console.WriteLine(manager.ToDot (res, (x) => "x" + x.Index));
 
             Assert.AreEqual (1, res.Index);

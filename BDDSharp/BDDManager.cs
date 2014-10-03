@@ -199,6 +199,7 @@ namespace BDDSharp
         /// <returns>The dot code.</returns>
         public string ToDot(BDDNode root, Func<BDDNode, string> labelFunction = null)
         {
+            root.SetIdentifiers (0);
             if (labelFunction == null) {
                 labelFunction = new Func<BDDNode, string> ((n) => "x" + n.Index + " (Id: " + n.Id + ")");
             }
