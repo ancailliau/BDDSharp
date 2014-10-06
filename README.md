@@ -13,15 +13,15 @@ complemented edges and shared BDDs might greatly improve the memory footprint.
 References
 ----------
 
-Christoph Meinel and Thorsten Theobald. 1998. Algorithms and Data Structures
-in VLSI Design (1st ed.). Springer-Verlag New York, Inc., Secaucus, NJ, USA.
+Christoph Meinel and Thorsten Theobald. 1998. *Algorithms and Data Structures
+in VLSI Design (1st ed.).* Springer-Verlag New York, Inc., Secaucus, NJ, USA.
 
-Randal E. Bryant. 1986. Graph-Based Algorithms for Boolean Function
-Manipulation. IEEE Trans. Comput. 35, 8 (August 1986), 677-691.
+Randal E. Bryant. 1986. *Graph-Based Algorithms for Boolean Function
+Manipulation.* IEEE Trans. Comput. 35, 8 (August 1986), 677-691.
 DOI=10.1109/TC.1986.1676819 http://dx.doi.org/10.1109/TC.1986.1676819
 
-Tony Stornetta and Forrest Brewer. 1996. Implementation of an efficient
-parallel BDD package. In Proceedings of the 33rd annual Design Automation
+Tony Stornetta and Forrest Brewer. 1996. *Implementation of an efficient
+parallel BDD package.* In Proceedings of the 33rd annual Design Automation
 Conference (DAC '96). ACM, New York, NY, USA, 641-644.
 DOI=10.1145/240518.240639 http://doi.acm.org/10.1145/240518.240639
 
