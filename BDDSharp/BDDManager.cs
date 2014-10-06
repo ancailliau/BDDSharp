@@ -157,6 +157,26 @@ namespace BDDSharp
         }
 
         /// <summary>
+        /// Performs the and operation between the specified f and g.
+        /// </summary>
+        /// <param name="f">The left node.</param>
+        /// <param name="g">The right node.</param>
+        public BDDNode And (BDDNode f, BDDNode g)
+        {
+            return ITE (f, g, Zero);
+        }
+
+        /// <summary>
+        /// Performs the or operation between the specified f and g.
+        /// </summary>
+        /// <param name="f">The left node.</param>
+        /// <param name="g">The right node.</param>
+        public BDDNode Or (BDDNode f, BDDNode g)
+        {
+            return ITE (f, One, g);
+        }
+
+        /// <summary>
         /// Performs the If-Then-Else operation on nodes <c>f</c>, <c>g</c>, <c>h</c>.
         /// </summary>
         /// <param name="f">Node.</param>
