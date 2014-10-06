@@ -27,7 +27,8 @@ namespace BDDSharp
         /// </summary>
         public int N;
 
-        private int nextId = 0;
+        int nextId = 0;
+        IDictionary<Tuple<BDDNode, BDDNode, BDDNode>, BDDNode> ite_cache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BDDSharp.BDDManager"/> class.
@@ -38,6 +39,7 @@ namespace BDDSharp
             this.N = n;
             this.Zero = Create (n, false);
             this.One = Create (n, true);
+            ite_cache = new Dictionary<Tuple<BDDNode, BDDNode, BDDNode>, BDDNode> ();
         }
 
         /// <summary>
@@ -203,6 +205,11 @@ namespace BDDSharp
             // ite(f, g, g) = g
             if (g == h)
                 return g;
+
+            var cache_key = new Tuple<BDDNode, BDDNode, BDDNode> (f, g, h);
+            if (ite_cache.ContainsKey(cache_key)) {
+                return ite_cache[cache_key];
+            }
 
             var index = new [] { f.Index, g.Index, h.Index }.Min();
             var indexSet = new HashSet<int> { index };
