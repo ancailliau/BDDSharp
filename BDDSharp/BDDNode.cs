@@ -101,6 +101,9 @@ namespace BDDSharp
         /// <summary>
         /// Initializes a new instance of the <see cref="BDDSharp.BDDNode"/> class.
         /// </summary>
+        /// <remarks>
+        /// Don't use this method to create new nodes, use <see cref="BDDSharp.BDDManager.Create(int, BDDNode, BDDNode)" />.
+        /// </remarks>
         /// <param name="index">Index of the variable the node represents</param>
         /// <param name="high">The high node (aka 1-node).</param>
         /// <param name="low">The low node (aka 0-node).</param>
@@ -114,6 +117,9 @@ namespace BDDSharp
         /// <summary>
         /// Initializes a new instance of the <see cref="BDDSharp.BDDNode"/> class.
         /// </summary>
+        /// <remarks>
+        /// Don't use this method to create new nodes, use <see cref="BDDSharp.BDDManager.Create(int, bool)" />.
+        /// </remarks>
         /// <param name="index">The index for the sink node (shall be <c>n+1</c> where <c>n</c> is the number of variables).</param>
         /// <param name="value">Value represented by the sink node.</param>
         public BDDNode (int index, bool value) : this ()
@@ -122,23 +128,6 @@ namespace BDDSharp
             this.Index = index;
             this.Low = null;
             this.High = null;
-        }
-
-        /// <summary>
-        /// Sets the identifiers of this node and its descendant.
-        /// </summary>
-        /// <returns>The identifiers.</returns>
-        /// <param name="i">The index to start from.</param>
-        public int SetIdentifiers(int i = 0)
-        {
-            Mark = !Mark;
-            Id = i;
-            int tmp = i;
-            if (Low != null && Low.Mark != Mark)
-                tmp = Low.SetIdentifiers(tmp + 1);
-            if (High != null && High.Mark != Mark)
-                tmp = High.SetIdentifiers(tmp + 1);
-            return tmp;
         }
 
         /// <summary>

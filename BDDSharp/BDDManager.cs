@@ -27,6 +27,8 @@ namespace BDDSharp
         /// </summary>
         public int N;
 
+        private int nextId = 0;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BDDSharp.BDDManager"/> class.
         /// </summary>
@@ -34,8 +36,29 @@ namespace BDDSharp
         public BDDManager (int n)
         {
             this.N = n;
-            this.Zero = new BDDNode (n, false);
-            this.One = new BDDNode (n, true);
+            this.Zero = Create (n, false);
+            this.One = Create (n, true);
+        }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="BDDSharp.BDDNode"/> class.
+        /// </summary>
+        /// <param name="index">Index of the variable the node represents</param>
+        /// <param name="high">The high node (aka 1-node).</param>
+        /// <param name="low">The low node (aka 0-node).</param>
+        public BDDNode Create (int index, BDDNode high, BDDNode low)
+        {
+            return new BDDNode (index, high, low) { Id = nextId++ };
+        }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="BDDSharp.BDDNode"/> class.
+        /// </summary>
+        /// <param name="index">The index for the sink node (shall be <c>n+1</c> where <c>n</c> is the number of variables).</param>
+        /// <param name="value">Value represented by the sink node.</param>
+        public BDDNode Create (int index, bool value)
+        {
+            return new BDDNode (index, value) { Id = nextId++ };
         }
 
         /// <summary>
@@ -57,7 +80,7 @@ namespace BDDSharp
                 vlist[nodes[i].Index].Add (nodes[i]);
             }
 
-            int nextid = 0;
+            int nextid = -1;
             for (int i = N; i >= 0; i--) {
                 var Q = new List<BDDNode> ();
                 if (vlist[i] == null)
@@ -120,15 +143,14 @@ namespace BDDSharp
                 return cache[n];
 
             BDDNode ret;
-            if (negative.Contains(n.Index))
+            if (negative.Contains(n.Index)) {
                 ret = Restrict(n.Low, positive, negative, cache);
-            else if (positive.Contains(n.Index))
+            } else if (positive.Contains(n.Index)) {
                 ret = Restrict(n.High, positive, negative, cache);
-            else {
-                ret = new BDDNode {
-                    Low = Restrict(n.Low, positive, negative, cache),
-                    High = Restrict(n.High, positive, negative, cache)
-                };
+            } else {
+                n.Low = Restrict(n.Low, positive, negative, cache);
+                n.High = Restrict(n.High, positive, negative, cache);
+                ret = n;
                 cache[n] = ret;
             }
             return ret;
@@ -162,7 +184,7 @@ namespace BDDSharp
             if (g == h)
                 return g;
 
-            var index = new int[] { f.Index, g.Index, h.Index }.Min();
+            var index = new [] { f.Index, g.Index, h.Index }.Min();
             var indexSet = new HashSet<int> { index };
             var emptySet = new HashSet<int> { };
 
@@ -175,6 +197,7 @@ namespace BDDSharp
             var hv1 = Restrict(h, indexSet, emptySet);
 
             return new BDDNode {
+                Index = index,
                 Low = ITE(fv0, gv0, hv0),
                 High = ITE(fv1, gv1, hv1),
             };
@@ -199,7 +222,6 @@ namespace BDDSharp
         /// <returns>The dot code.</returns>
         public string ToDot(BDDNode root, Func<BDDNode, string> labelFunction = null)
         {
-            root.SetIdentifiers (0);
             if (labelFunction == null) {
                 labelFunction = new Func<BDDNode, string> ((n) => "x" + n.Index + " (Id: " + n.Id + ")");
             }

@@ -11,10 +11,10 @@ namespace BDDSharp.Tests
         public void TestReduceSimple ()
         {
             var manager = new BDDManager (3);
-            var n3 = new BDDNode (2, manager.One, manager.One);
-            var n4 = new BDDNode (1, n3, manager.Zero);
-            var n2 = new BDDNode (1, n3, manager.Zero);
-            var root = new BDDNode (0, n2, n4);
+            var n3 = manager.Create (2, manager.One, manager.One);
+            var n4 = manager.Create (1, n3, manager.Zero);
+            var n2 = manager.Create (1, n3, manager.Zero);
+            var root = manager.Create (0, n2, n4);
         
             Console.WriteLine(manager.ToDot (root, (x) => "x" + x.Index));
             var res = manager.Reduce (root);
@@ -30,12 +30,12 @@ namespace BDDSharp.Tests
         public void TestReduceInfEdAcUk ()
         {
             var manager = new BDDManager (3);
-            var n1 = new BDDNode (2, manager.One, manager.Zero);
-            var n2 = new BDDNode (2, manager.One, manager.Zero);
+            var n1 = manager.Create (2, manager.One, manager.Zero);
+            var n2 = manager.Create (2, manager.One, manager.Zero);
 
-            var n3 = new BDDNode (1, n1, manager.Zero);
-            var n4 = new BDDNode (1, n2, n1);
-            var n5 = new BDDNode (0, n4, n3);
+            var n3 = manager.Create (1, n1, manager.Zero);
+            var n4 = manager.Create (1, n2, n1);
+            var n5 = manager.Create (0, n4, n3);
 
             var res = manager.Reduce (n5);
 
@@ -57,24 +57,24 @@ namespace BDDSharp.Tests
         public void TestReduceInfUnibzIt ()
         {
             var manager = new BDDManager (4);
-            var n1 = new BDDNode (3, manager.Zero, manager.Zero);
-            var n2 = new BDDNode (3, manager.One, manager.Zero);
-            var n3 = new BDDNode (3, manager.Zero, manager.Zero);
-            var n4 = new BDDNode (3, manager.One, manager.Zero);
-            var n5 = new BDDNode (3, manager.Zero, manager.Zero);
-            var n6 = new BDDNode (3, manager.One, manager.Zero);
-            var n7 = new BDDNode (3, manager.One, manager.One);
-            var n8 = new BDDNode (3, manager.One, manager.One);
+            var n1 = manager.Create (3, manager.Zero, manager.Zero);
+            var n2 = manager.Create (3, manager.One, manager.Zero);
+            var n3 = manager.Create (3, manager.Zero, manager.Zero);
+            var n4 = manager.Create (3, manager.One, manager.Zero);
+            var n5 = manager.Create (3, manager.Zero, manager.Zero);
+            var n6 = manager.Create (3, manager.One, manager.Zero);
+            var n7 = manager.Create (3, manager.One, manager.One);
+            var n8 = manager.Create (3, manager.One, manager.One);
 
-            var n9 = new BDDNode (2, n2, n1);
-            var n10 = new BDDNode (2, n4, n3);
-            var n11 = new BDDNode (2, n6, n5);
-            var n12 = new BDDNode (2, n8, n7);
+            var n9 = manager.Create (2, n2, n1);
+            var n10 = manager.Create (2, n4, n3);
+            var n11 = manager.Create (2, n6, n5);
+            var n12 = manager.Create (2, n8, n7);
 
-            var n13 = new BDDNode (1, n10, n9);
-            var n14 = new BDDNode (1, n12, n11);
+            var n13 = manager.Create (1, n10, n9);
+            var n14 = manager.Create (1, n12, n11);
 
-            var n15 = new BDDNode (0, n14, n13);
+            var n15 = manager.Create (0, n14, n13);
 
             var res = manager.Reduce (n15);
 
