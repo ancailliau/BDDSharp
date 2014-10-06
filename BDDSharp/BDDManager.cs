@@ -216,11 +216,7 @@ namespace BDDSharp
             var gv1 = Restrict(g, indexSet, emptySet);
             var hv1 = Restrict(h, indexSet, emptySet);
 
-            return new BDDNode {
-                Index = index,
-                Low = ITE(fv0, gv0, hv0),
-                High = ITE(fv1, gv1, hv1),
-            };
+            return Create (index, ITE(fv1, gv1, hv1), ITE(fv0, gv0, hv0));
         }
 
         /// <summary>
@@ -233,7 +229,7 @@ namespace BDDSharp
                 return One;
             if (n.IsOne)
                 return Zero;
-            return new BDDNode { Low = Negate(n.Low), High = Negate(n.High) };
+            return Create (n.Index, Negate(n.High), Negate(n.Low));
         }
 
         /// <summary>
