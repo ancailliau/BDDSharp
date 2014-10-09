@@ -259,7 +259,7 @@ namespace BDDSharp
                     t.Append("\t" + n.Id + " -> " + n.High.Id + ";\n");
                     t.Append("\t" + n.Id + " -> " + n.Low.Id + " [style=dotted];\n");
                 } else {
-                    t.Append("\t" + n.Id + " [shape=box,label=\"" + (((bool)n.Value) ? "1" : "0") + " (id:" + n.Id + ")\"];\n");
+                    t.Append("\t" + n.Id + " [shape=box,label=\"" + (((bool)n.Value) ? "1" : "0") + "\"];\n");
                 }
             }
             t.Append("}");
