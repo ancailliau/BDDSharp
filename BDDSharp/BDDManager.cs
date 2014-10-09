@@ -28,9 +28,15 @@ namespace BDDSharp
         public int N { get { return _n; } set { _n = value; Zero.Index = _n; One.Index = _n; } }
 
         int _n;
-
         int nextId = 0;
         IDictionary<Tuple<BDDNode, BDDNode, BDDNode>, BDDNode> ite_cache;
+        List<int> variableOrder;
+
+        public int[] VariableOrder {
+            get {
+                return variableOrder.ToArray ();
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BDDSharp.BDDManager"/> class.
@@ -42,6 +48,10 @@ namespace BDDSharp
             this.One = Create (n, true);
             this._n = n;
             ite_cache = new Dictionary<Tuple<BDDNode, BDDNode, BDDNode>, BDDNode> ();
+            variableOrder = new List<int> (Enumerable.Range (0, n));
+            if (variableOrder.Count() != n) {
+                throw new ArgumentException ();
+            }
         }
 
         /// <summary>
@@ -69,7 +79,57 @@ namespace BDDSharp
         {
             var temp = N;
             N++;
+            variableOrder.Add (temp);
             return temp;
+        }
+
+        /// <summary>
+        /// Swap the specified variables
+        /// </summary>
+        /// <remarks>The two variables shall be adjacent. <c>index</c> shall be followed by <c>index2</c> in the variable order.</remarks>
+        /// <param name="node">The root node of the BDD.</param>
+        /// <param name="index">Variable.</param>
+        /// <param name="index2">Variable.</param>
+        public BDDNode Swap (BDDNode node, int index, int index2)
+        {
+            var i = variableOrder.FindIndex(x => x == index) + 1;
+            if (i >= variableOrder.Count ())
+                throw new ArgumentException ("'" + index + "' is the last variable in the variable order.");
+
+            var nextIndex = variableOrder[i];
+            if (index2 != nextIndex)
+                throw new ArgumentException ("Cannot swap variables not adjacents.");
+
+            variableOrder[i - 1] = nextIndex;
+            variableOrder[i] = index;
+            return SwapStep (node, index, nextIndex);
+        }
+
+        BDDNode SwapStep (BDDNode node, int currentIndex, int nextIndex) 
+        {
+            if (node.Index != currentIndex) {
+                node.Low = SwapStep (node.Low, currentIndex, nextIndex);
+                node.High = SwapStep (node.High, currentIndex, nextIndex);
+
+            } else {
+                // Fail if index is not index of a child
+                // Fail if node.Low or node.High is a sink node
+
+                var f11 = (node.High.Index == nextIndex) ? node.High.High : node.High;
+                var f10 = (node.High.Index == nextIndex) ? node.High.Low : node.High;
+
+                var f01 = (node.Low.Index == nextIndex) ? node.Low.High : node.Low;
+                var f00 = (node.Low.Index == nextIndex) ? node.Low.Low : node.Low;
+
+                var a = Create (node.Index, f11, f01);
+                var b = Create (node.Index, f10, f00);
+
+                node.Index = nextIndex;
+                node.High = a;
+                node.Low = b;
+            }
+
+            return node;
         }
 
         /// <summary>
@@ -92,7 +152,9 @@ namespace BDDSharp
             }
 
             int nextid = -1;
-            for (int i = N; i >= 0; i--) {
+            for (int k = N; k >= 0; k--) {
+                int i = (k == N) ? N : VariableOrder[k];
+
                 var Q = new List<BDDNode> ();
                 if (vlist[i] == null)
                     continue;

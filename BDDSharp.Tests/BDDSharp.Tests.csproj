@@ -34,10 +34,12 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\KAOSTools\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestReduce.cs" />
     <Compile Include="TestITE.cs" />
+    <Compile Include="TestSwap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
