@@ -65,6 +65,13 @@ namespace BDDSharp
             return new BDDNode (index, value) { Id = nextId++ };
         }
 
+        public int CreateVariable ()
+        {
+            var temp = N;
+            N++;
+            return temp;
+        }
+
         /// <summary>
         /// Reduce the specified BDD.
         /// </summary>
