@@ -25,7 +25,9 @@ namespace BDDSharp
         /// <summary>
         /// The number of variables
         /// </summary>
-        public int N;
+        public int N { get { return _n; } set { _n = value; Zero.Index = _n; One.Index = _n; } }
+
+        int _n;
 
         int nextId = 0;
         IDictionary<Tuple<BDDNode, BDDNode, BDDNode>, BDDNode> ite_cache;
@@ -36,9 +38,9 @@ namespace BDDSharp
         /// <param name="n">The number of variables</param>
         public BDDManager (int n)
         {
-            this.N = n;
             this.Zero = Create (n, false);
             this.One = Create (n, true);
+            this._n = n;
             ite_cache = new Dictionary<Tuple<BDDNode, BDDNode, BDDNode>, BDDNode> ();
         }
 
