@@ -1,7 +1,9 @@
-﻿using System;
+﻿// #define PRINT
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace BDDSharp
 {
@@ -38,6 +40,10 @@ namespace BDDSharp
             }
         }
 
+        public Func<int, string> GetVariableString {
+            get ; set ;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BDDSharp.BDDManager"/> class.
         /// </summary>
@@ -52,6 +58,22 @@ namespace BDDSharp
             if (variableOrder.Count() != n) {
                 throw new ArgumentException ();
             }
+            GetVariableString = (x) => x.ToString ();
+        }
+
+        public BDDNode Create (int index, int high, BDDNode low)
+        {
+            return new BDDNode (index, high == 0 ? Zero : One, low) { Id = nextId++ };
+        }
+
+        public BDDNode Create (int index, BDDNode high, int low)
+        {
+            return new BDDNode (index, high, low == 0 ? Zero : One) { Id = nextId++ };
+        }
+
+        public BDDNode Create (int index, int high, int low)
+        {
+            return new BDDNode (index, high == 0 ? Zero : One, low == 0 ? Zero : One) { Id = nextId++ };
         }
 
         /// <summary>
@@ -102,18 +124,27 @@ namespace BDDSharp
 
             variableOrder[i - 1] = nextIndex;
             variableOrder[i] = index;
-            return SwapStep (node, index, nextIndex);
+
+            return SwapStep (node, index, nextIndex, node);
         }
 
-        BDDNode SwapStep (BDDNode node, int currentIndex, int nextIndex) 
+        BDDNode SwapStep (BDDNode node, int currentIndex, int nextIndex, BDDNode root) 
         {
+//            Console.WriteLine();
+//            Console.WriteLine("node={0}\n\tcurrentIndex={1}, nextIndex={2}", node, currentIndex, nextIndex);
+            
+            if (node.IsOne | node.IsZero)
+                return node;
+
             if (node.Index != currentIndex) {
-                node.Low = SwapStep (node.Low, currentIndex, nextIndex);
-                node.High = SwapStep (node.High, currentIndex, nextIndex);
+                node.Low = SwapStep (node.Low, currentIndex, nextIndex, root);
+                node.High = SwapStep (node.High, currentIndex, nextIndex, root);
 
             } else {
-                // Fail if index is not index of a child
-                // Fail if node.Low or node.High is a sink node
+                //Console.WriteLine("Swap");
+
+                if (node.High.Index != nextIndex & node.Low.Index != nextIndex)
+                    return node;
 
                 var f11 = (node.High.Index == nextIndex) ? node.High.High : node.High;
                 var f10 = (node.High.Index == nextIndex) ? node.High.Low : node.High;
@@ -121,15 +152,77 @@ namespace BDDSharp
                 var f01 = (node.Low.Index == nextIndex) ? node.Low.High : node.Low;
                 var f00 = (node.Low.Index == nextIndex) ? node.Low.Low : node.Low;
 
+//                Console.WriteLine("f00={0}, f01={1}, f10={2}, f11={3}", f00.Id, f01.Id, f10.Id, f11.Id);
+
                 var a = Create (node.Index, f11, f01);
                 var b = Create (node.Index, f10, f00);
+//                Console.WriteLine("a: " + a);
+//                Console.WriteLine("b: " + b);
 
                 node.Index = nextIndex;
                 node.High = a;
                 node.Low = b;
+
+//                Console.WriteLine(ToDot (root, x => GetVariableString (x.Index) + " (Id: " + x.Id + ")"));
             }
 
             return node;
+        }
+
+        public BDDNode Sifting (BDDNode P)
+        {
+            var reverse_order = new int[N];
+            for (int i = 0; i < N; i++) {
+                reverse_order[variableOrder[i]] = i;
+            }
+
+            int file_index = 0;
+
+            for (int i = 0; i < N; i++) {
+                // Move variable xi through the order
+                int opt_size = P.Nodes.Count ();
+                int opt_pos, cur_pos, startpos = reverse_order[i];
+                opt_pos = startpos;
+                cur_pos = startpos;
+
+                for (int j = startpos - 1; j >= 0; j--) {
+                    cur_pos = j;
+                    Swap (P, VariableOrder[j], VariableOrder[j+1]);
+                    P = Reduce (P);
+                    var new_size = P.Nodes.Count();
+                    if (new_size < opt_size) {
+                        opt_size = new_size;
+                        opt_pos = j;
+                    }/* else if (new_size > MaxGrowth * opt_size) {
+                        
+                    }*/
+                }
+
+                for (int j = cur_pos + 1; j < N; j++) {
+                    cur_pos = j;
+                    Swap (P, variableOrder[j-1], variableOrder[j]);
+                    P = Reduce (P);
+                    var new_size = P.Nodes.Count();
+                    if (new_size < opt_size) {
+                        opt_size = new_size;
+                        opt_pos = j;
+                    }
+                }
+
+                if (cur_pos > opt_pos) {
+                    for (int j = cur_pos - 1; j >= opt_pos; j--) {
+                        Swap (P, variableOrder[j], variableOrder[j+1]);
+                        P = Reduce (P);
+                    }
+                } else {
+                    for (int j = cur_pos + 1; j <= opt_pos; j++) {
+                        Swap (P, variableOrder[j-1], variableOrder[j]);
+                        P = Reduce (P);
+                    }
+                }
+            }
+            P = Reduce (P);
+            return P;
         }
 
         /// <summary>
@@ -154,7 +247,6 @@ namespace BDDSharp
             int nextid = -1;
             for (int k = N; k >= 0; k--) {
                 int i = (k == N) ? N : VariableOrder[k];
-
                 var Q = new List<BDDNode> ();
                 if (vlist[i] == null)
                     continue;
@@ -316,19 +408,30 @@ namespace BDDSharp
         /// <returns>The dot code.</returns>
         public string ToDot(BDDNode root, Func<BDDNode, string> labelFunction = null)
         {
-            if (labelFunction == null) {
-                labelFunction = new Func<BDDNode, string> ((n) => "x" + n.Index + " (Id: " + n.Id + ")");
-            }
-
             var nodes = root.Nodes.ToList();
             var t = new StringBuilder("digraph G {\n");
+
+            if (labelFunction == null)
+                labelFunction = (x) => GetVariableString (x.Index);
+
+            for (int i = 0; i < N; i++) {
+                t.Append("\tsubgraph cluster_box_"+i+" {\n");
+                t.Append("\tstyle=invis;\n");
+                foreach (var n in nodes.Where (x => x.Index == i)) {
+                    t.Append("\t\t" + n.Id + " [label=\"" + labelFunction (n) + "\"];\n");
+                }
+                t.Append("\t}\n");
+            }
+
+            t.Append("\tsubgraph cluster_box_sink {\n");
+            t.Append("\t" + Zero.Id + " [shape=box,label=\"0\"];\n");
+            t.Append("\t" + One.Id + " [shape=box,label=\"1\"];\n");
+            t.Append("\t}\n");
+
             foreach (var n in nodes) {
                 if (n.Index < N) {
-                        t.Append("\t" + n.Id + " [label=\"" + labelFunction (n) + "\"];\n");
                     t.Append("\t" + n.Id + " -> " + n.High.Id + ";\n");
                     t.Append("\t" + n.Id + " -> " + n.Low.Id + " [style=dotted];\n");
-                } else {
-                    t.Append("\t" + n.Id + " [shape=box,label=\"" + (((bool)n.Value) ? "1" : "0") + "\"];\n");
                 }
             }
             t.Append("}");
