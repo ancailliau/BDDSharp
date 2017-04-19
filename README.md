@@ -4,6 +4,8 @@ BDDSharp
 BDDSharp is a C# library for manipulating roBDDs (Reduced Ordered Binary
 Decision Diagrams).
 
+[![Build Status](https://travis-ci.org/ancailliau/BDDSharp.svg?branch=master)](https://travis-ci.org/ancailliau/BDDSharp)
+
 Future Work
 -----------
 
