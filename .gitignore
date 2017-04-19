@@ -3,3 +3,4 @@ BDDSharp/bin/
 BDDSharp/obj/
 BDDSharp.Tests/bin/
 BDDSharp.Tests/obj/
+*.userprefs
