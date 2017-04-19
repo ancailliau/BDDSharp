@@ -1,9 +1,23 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDDSharp", "BDDSharp\BDDSharp.csproj", "{0F303658-80AD-4637-B587-BD076A80DCF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDDSharp.Tests", "BDDSharp.Tests\BDDSharp.Tests.csproj", "{BE00240A-E057-460F-85A9-16F57D0CF7F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0F303658-80AD-4637-B587-BD076A80DCF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F303658-80AD-4637-B587-BD076A80DCF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F303658-80AD-4637-B587-BD076A80DCF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F303658-80AD-4637-B587-BD076A80DCF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE00240A-E057-460F-85A9-16F57D0CF7F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE00240A-E057-460F-85A9-16F57D0CF7F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE00240A-E057-460F-85A9-16F57D0CF7F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE00240A-E057-460F-85A9-16F57D0CF7F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

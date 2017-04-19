@@ -1,0 +1,9 @@
+language: csharp
+sudo: false
+solution: BDDSharp.sln
+install:
+  - nuget restore BDDSharp.sln
+  - nuget install NUnit.Console -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Debug BDDSharp.sln
+  - mono ./testrunner/NUnit.ConsoleRunner.3.6.1/tools/nunit3-console.exe ./BDDSharp.Tests/bin/Debug/BDDSharp.Tests.dll

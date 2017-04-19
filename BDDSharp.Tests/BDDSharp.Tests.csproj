@@ -31,10 +31,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\KAOSTools\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.3.6.1\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestReduce.cs" />
