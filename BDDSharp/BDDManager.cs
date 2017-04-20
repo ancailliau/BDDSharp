@@ -121,28 +121,25 @@ namespace UCLouvain.BDDSharp
             var nextIndex = variableOrder[i];
             if (index2 != nextIndex)
                 throw new ArgumentException ("Cannot swap variables not adjacents.");
+			
+            // ntm: ignore 008b: read substitution Int32.V_2 => Int32.index2
+			variableOrder[i - 1] = nextIndex; 
+			variableOrder[i] = index;
 
-            variableOrder[i - 1] = nextIndex;
-            variableOrder[i] = index;
-
-            return SwapStep (node, index, nextIndex, node);
+			// ntm: ignore 00ad: read substitution Int32.V_2 => Int32.index2
+			return SwapStep (node, index, nextIndex);
         }
 
-        BDDNode SwapStep (BDDNode node, int currentIndex, int nextIndex, BDDNode root) 
+        BDDNode SwapStep (BDDNode node, int currentIndex, int nextIndex) 
         {
-//            Console.WriteLine();
-//            Console.WriteLine("node={0}\n\tcurrentIndex={1}, nextIndex={2}", node, currentIndex, nextIndex);
-            
-            if (node.IsOne | node.IsZero)
-                return node;
+            if (node.IsOne | node.IsZero) // ntm: ignore 000d: Or => Xor
+				return node;
 
             if (node.Index != currentIndex) {
-                node.Low = SwapStep (node.Low, currentIndex, nextIndex, root);
-                node.High = SwapStep (node.High, currentIndex, nextIndex, root);
+                node.Low = SwapStep (node.Low, currentIndex, nextIndex);
+                node.High = SwapStep (node.High, currentIndex, nextIndex);
 
             } else {
-                //Console.WriteLine("Swap");
-
                 if (node.High.Index != nextIndex & node.Low.Index != nextIndex)
                     return node;
 
@@ -152,18 +149,12 @@ namespace UCLouvain.BDDSharp
                 var f01 = (node.Low.Index == nextIndex) ? node.Low.High : node.Low;
                 var f00 = (node.Low.Index == nextIndex) ? node.Low.Low : node.Low;
 
-//                Console.WriteLine("f00={0}, f01={1}, f10={2}, f11={3}", f00.Id, f01.Id, f10.Id, f11.Id);
-
                 var a = Create (node.Index, f11, f01);
                 var b = Create (node.Index, f10, f00);
-//                Console.WriteLine("a: " + a);
-//                Console.WriteLine("b: " + b);
 
                 node.Index = nextIndex;
                 node.High = a;
                 node.Low = b;
-
-//                Console.WriteLine(ToDot (root, x => GetVariableString (x.Index) + " (Id: " + x.Id + ")"));
             }
 
             return node;

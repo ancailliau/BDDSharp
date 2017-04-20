@@ -7,25 +7,72 @@ namespace UCLouvain.BDDSharp.Tests
 {
     [TestFixture()]
     public class TestSwap
-    {
+	{
+        [Test()]
+        public void TestSwapLastVariable()
+        {
+			var manager = new BDDManager(2);
+			var n3 = manager.Create(1, manager.One, manager.Zero);
+			var n4 = manager.Create(1, manager.Zero, manager.One);
+			var root = manager.Create(0, n3, n4);
+            var e = Assert.Catch(() =>
+            {
+                var res = manager.Swap(root, 1, 2);
+            });
+
+			Assert.IsInstanceOf(typeof(ArgumentException), e);
+            StringAssert.Contains("1", e.Message);
+		}
+
+		[Test()]
+		public void TestSwapNotAdjacentVariable()
+		{
+			var manager = new BDDManager(2);
+			var n3 = manager.Create(1, manager.One, manager.Zero);
+			var n4 = manager.Create(1, manager.Zero, manager.One);
+			var root = manager.Create(0, n3, n4);
+			var e = Assert.Catch(() =>
+			{
+				var res = manager.Swap(root, 0, 2);
+			});
+
+			Assert.IsInstanceOf(typeof(ArgumentException), e);
+			StringAssert.Contains("not adjacents", e.Message);
+		}
+
         [Test ()]
         public void TestSwapSimple ()
         {
-            var manager = new BDDManager (2);
-            var n3 = manager.Create (1, manager.One, manager.Zero);
-            var n4 = manager.Create (1, manager.Zero, manager.One);
-            var root = manager.Create (0, n3, n4);
-        
-            var dict = new Dictionary<int, string> { { 0, "a" }, { 1, "b" }, { 2, "c" } };
-            Console.WriteLine(manager.ToDot (root, (x) => dict[x.Index]));
+            var manager = new BDDManager(2);
+            var n3 = manager.Create(1, manager.One, manager.Zero);
+            var n4 = manager.Create(1, manager.Zero, manager.One);
+            var root = manager.Create(0, n3, n4);
 
-            var res = manager.Swap (root, 0, 1);
-            //var res = manager.Reduce (root);
-            Console.WriteLine(manager.ToDot (res, (x) => dict[x.Index]));
-            /*
-            Assert.AreEqual (1, res.Index);
-            Assert.AreEqual (false, res.Low.Value);
-            Assert.AreEqual (true, res.High.Value);*/
+            var dict = new Dictionary<int, string> { { 0, "a" }, { 1, "b" }, { 2, "c" } };
+
+			// Assert that BDD represent the function a == b
+			AssertTestSwapSimple(dict, root);
+
+            var res = manager.Swap(root, 0, 1);
+
+            // Assert that the swapped BDD represent the function a == b
+            AssertTestSwapSimple(dict, res);
+        }
+
+        private void AssertTestSwapSimple(Dictionary<int, string> dict, BDDNode res)
+        {
+            for (int a = 0; a <= 1; a++)
+            {
+                for (int b = 0; b <= 1; b++)
+                {
+                    var interpretation = new Dictionary<string, bool>(){
+                        { "a", a == 1 },
+                        { "b", b == 1 }
+                    };
+
+                    EvaluateBDD(res, dict, interpretation, a == b);
+                }
+            }
         }
 
         [Test ()]
@@ -36,43 +83,106 @@ namespace UCLouvain.BDDSharp.Tests
             var root = manager.Create (0, n3, manager.One);
 
             var dict = new Dictionary<int, string> { { 0, "a" }, { 1, "b" }, { 2, "c" } };
-            Console.WriteLine(manager.ToDot (root, (x) => dict[x.Index]));
+			Console.WriteLine(manager.ToDot(root, (x) => dict[x.Index]));
+
+			// Assert that the swapped BDD represent the function !a | b
+			for (int a = 0; a <= 1; a++)
+			{
+				for (int b = 0; b <= 1; b++)
+				{
+					var A = a == 1;
+					var B = b == 1;
+					var interpretation = new Dictionary<string, bool>(){
+						{ "a", A },
+						{ "b", B }
+					};
+
+                    EvaluateBDD(root, dict, interpretation, !A | B);
+				}
+			}
 
             var res = manager.Reduce (manager.Swap (root, 0, 1));
-            //var res = manager.Reduce (root);
-            Console.WriteLine(manager.ToDot (res, (x) => dict[x.Index]));
-            /*
-            Assert.AreEqual (1, res.Index);
-            Assert.AreEqual (false, res.Low.Value);
-            Assert.AreEqual (true, res.High.Value);*/
+
+            // Assert that the swapped BDD represent the function !a | b
+            for (int a = 0; a <= 1; a++)
+            {
+                for (int b = 0; b <= 1; b++)
+                {
+                    var A = a == 1;
+                    var B = b == 1;
+                    var interpretation = new Dictionary<string, bool>(){
+                        { "a", A },
+                        { "b", B }
+                    };
+
+                    EvaluateBDD(res, dict, interpretation, !A|B);
+                }
+            }
         }
 
         [Test ()]
         public void TestSwapSimple2 ()
         {
-            var manager = new BDDManager (3);
-            var n2 = manager.Create (2, manager.One, manager.Zero);
-            var n3 = manager.Create (1, manager.One, n2);
-            var n4 = manager.Create (1, manager.Zero, manager.One);
-            var root = manager.Create (0, n3, n4);
+            var manager = new BDDManager(3);
+            var n2 = manager.Create(2, manager.One, manager.Zero);
+            var n3 = manager.Create(1, manager.One, n2);
+            var n4 = manager.Create(1, manager.Zero, manager.One);
+            var root = manager.Create(0, n3, n4);
 
             var dict = new Dictionary<int, string> { { 0, "a" }, { 1, "b" }, { 2, "c" } };
-            var rdict = dict.ToDictionary ((x) => x.Value, (x) => x.Key);
-            Console.WriteLine(manager.ToDot (root, (x) => dict[x.Index]));
+            var rdict = dict.ToDictionary((x) => x.Value, (x) => x.Key);
+            AssertSwapSimple2(dict, root);
 
-            var res = manager.Swap (root, rdict["b"], rdict["c"]);
-            Console.WriteLine(manager.ToDot (res, (x) => dict[x.Index]));
+            var res = manager.Swap(root, rdict["b"], rdict["c"]);
+            AssertSwapSimple2(dict, res);
 
-            var res2 = manager.Reduce (res);
-            Console.WriteLine(manager.ToDot (res2, (x) => dict[x.Index]));
+            var res2 = manager.Reduce(res);
+            AssertSwapSimple2(dict, res2);
+		}
 
-            /*
-            Assert.AreEqual (1, res.Index);
-            Assert.AreEqual (false, res.Low.Value);
-            Assert.AreEqual (true, res.High.Value);*/
+		[Test()]
+		public void TestSwapSimple2Chained()
+		{
+			var manager = new BDDManager(3);
+			var n2 = manager.Create(2, manager.One, manager.Zero);
+			var n3 = manager.Create(1, manager.One, n2);
+			var n4 = manager.Create(1, manager.Zero, manager.One);
+			var root = manager.Create(0, n3, n4);
+
+			var dict = new Dictionary<int, string> { { 0, "a" }, { 1, "b" }, { 2, "c" } };
+			var rdict = dict.ToDictionary((x) => x.Value, (x) => x.Key);
+			AssertSwapSimple2(dict, root);
+
+			var res = manager.Swap(root, rdict["b"], rdict["c"]);
+			res = manager.Swap(root, rdict["a"], rdict["c"]);
+			AssertSwapSimple2(dict, res);
+
+			var res2 = manager.Reduce(res);
+			AssertSwapSimple2(dict, res2);
+		}
+
+        private void AssertSwapSimple2(Dictionary<int, string> dict, BDDNode res)
+        {
+            for (int a = 0; a <= 1; a++)
+            {
+                for (int b = 0; b <= 1; b++)
+				{
+                    for (int c = 0; c <= 1; c++)
+                    {
+                        var A = a == 1;
+						var B = b == 1;
+						var C = c == 1;
+                        var interpretation = new Dictionary<string, bool>(){
+	                        { "a", A },
+							{ "b", B },
+							{ "c", C }
+	                    };
+
+                        EvaluateBDD(res, dict, interpretation, A & B | A & !B & C | !A & !B);
+                    }
+                }
+            }
         }
-
-
 
         [Test ()]
         public void TestSwapBug ()
@@ -91,21 +201,60 @@ namespace UCLouvain.BDDSharp.Tests
             var n6 = manager.Create (rdict["x3"], n8, n7);
             var n5 = manager.Create (rdict["x3"], 1, n7);
             var n4 = manager.Create (rdict["x4"], n5, n6);
-            // var n3 = manager.Create (rdict["x4"], n5, n7);
-            // var n2 = manager.Create (rdict["x2"], 1, n3);
-            // var n1 = manager.Create (rdict["x1"], n2, n4);
             var root = n4;
+            AssertTestSwapBug(dict, root);
 
-            // Console.WriteLine(manager.ToDot (root));
+			var res = manager.Swap(root, rdict["x5"], rdict["x6"]);
+			AssertTestSwapBug(dict, res);
+		}
 
-            var res = manager.Swap (root, rdict["x5"], rdict["x6"]);
-            //var res = manager.Reduce (root);
-            Console.WriteLine(manager.ToDot (res));
-            /*
-            Assert.AreEqual (1, res.Index);
-            Assert.AreEqual (false, res.Low.Value);
-            Assert.AreEqual (true, res.High.Value);*/
-        }
+		private void AssertTestSwapBug(Dictionary<int, string> dict, BDDNode res)
+		{
+			for (int a = 0; a <= 1; a++)
+			{
+				for (int b = 0; b <= 1; b++)
+				{
+					for (int c = 0; c <= 1; c++)
+					{
+                        for (int d = 0; d <= 1; d++)
+                        {
+                            var A = a == 1;
+                            var B = b == 1;
+							var C = c == 1;
+							var D = d == 1;
+                            var interpretation = new Dictionary<string, bool>(){
+	                            { "x3", A },
+	                            { "x4", B },
+								{ "x5", C },
+								{ "x6", D }
+	                        };
+
+                            EvaluateBDD(res, dict, interpretation, A & B | D & C & !A | D & !C & A);
+                        }
+					}
+				}
+			}
+		}
+
+		void EvaluateBDD(BDDNode root, Dictionary<int, string> dict, Dictionary<string, bool> interpretation, bool expect)
+		{
+			if (root.IsOne)
+			{
+				Assert.True(expect);
+			}
+			else if (root.IsZero)
+			{
+				Assert.IsFalse(expect);
+			}
+			else
+			{
+                var b = interpretation[dict[root.Index]];
+				if (b)
+					EvaluateBDD(root.High, dict, interpretation, expect);
+				else
+					EvaluateBDD(root.Low, dict, interpretation, expect);
+			}
+		}
     }
 }
 
