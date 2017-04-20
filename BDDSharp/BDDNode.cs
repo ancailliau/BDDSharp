@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BDDSharp
+namespace UCLouvain.BDDSharp
 {
     /// <summary>
     /// Represents a BDD node.
@@ -95,7 +95,6 @@ namespace BDDSharp
         /// </summary>
         public BDDNode ()
         {
-            this.Mark = false;
         }
 
         /// <summary>
@@ -126,8 +125,6 @@ namespace BDDSharp
         {
             this.Value = value;
             this.Index = index;
-            this.Low = null;
-            this.High = null;
         }
 
         /// <summary>

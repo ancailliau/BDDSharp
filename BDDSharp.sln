@@ -1,9 +1,9 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDDSharp", "BDDSharp\BDDSharp.csproj", "{0F303658-80AD-4637-B587-BD076A80DCF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UCLouvain.BDDSharp", "BDDSharp\UCLouvain.BDDSharp.csproj", "{0F303658-80AD-4637-B587-BD076A80DCF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDDSharp.Tests", "BDDSharp.Tests\BDDSharp.Tests.csproj", "{BE00240A-E057-460F-85A9-16F57D0CF7F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UCLouvain.BDDSharp.Tests", "BDDSharp.Tests\UCLouvain.BDDSharp.Tests.csproj", "{BE00240A-E057-460F-85A9-16F57D0CF7F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

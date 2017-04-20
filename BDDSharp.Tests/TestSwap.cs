@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BDDSharp.Tests
+namespace UCLouvain.BDDSharp.Tests
 {
     [TestFixture()]
     public class TestSwap

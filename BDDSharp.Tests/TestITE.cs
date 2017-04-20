@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace BDDSharp.Tests
+namespace UCLouvain.BDDSharp.Tests
 {
     [TestFixture()]
     public class TestITE

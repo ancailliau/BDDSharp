@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace BDDSharp
+namespace UCLouvain.BDDSharp
 {
     /// <summary>
     /// Represents a BDD

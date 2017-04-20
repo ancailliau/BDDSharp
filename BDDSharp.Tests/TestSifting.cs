@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BDDSharp.Tests
+namespace UCLouvain.BDDSharp.Tests
 {
     [TestFixture()]
     public class TestSifting
@@ -25,6 +25,21 @@ namespace BDDSharp.Tests
             var res = manager.Sifting (root);
             Console.WriteLine(manager.ToDot (res, (x) => dict[x.Index]));
             Console.WriteLine(string.Join (",", manager.VariableOrder));
+        }
+
+        void EvaluateBDD(BDDNode root, Dictionary<int, string> dict, Dictionary<string, bool> interpretation, bool expect)
+        {
+            if (root.IsOne) {
+                Assert.True(expect);
+            } else if  (root.IsZero) {
+                Assert.IsFalse(expect);
+            } else {
+                var b = interpretation[dict[root.Id]];
+                if (b)
+                    EvaluateBDD(root.High, dict, interpretation, expect);
+                else
+                    EvaluateBDD(root.Low, dict, interpretation, expect);
+            }
         }
 
         // from Algorithms and data structures in VLSI design, page 124
