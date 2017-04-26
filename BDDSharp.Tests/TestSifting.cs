@@ -6,7 +6,7 @@ using System.Linq;
 namespace UCLouvain.BDDSharp.Tests
 {
     [TestFixture()]
-    public class TestSifting
+    public class TestSifting : TestBDD
     {
         [Test ()]
         public void TestSwapSimple2 ()
@@ -20,26 +20,35 @@ namespace UCLouvain.BDDSharp.Tests
             var dict = new Dictionary<int, string> { { 0, "a" }, { 1, "b" }, { 2, "c" } };
             var rdict = dict.ToDictionary ((x) => x.Value, (x) => x.Key);
 
-            Console.WriteLine(manager.ToDot (root, (x) => dict[x.Index]));
-
-            var res = manager.Sifting (root);
-            Console.WriteLine(manager.ToDot (res, (x) => dict[x.Index]));
-            Console.WriteLine(string.Join (",", manager.VariableOrder));
+            var truth = BuildThruthTable(manager, root);
+            var res = manager.Sifting(root);
+            CheckThruthTable(truth, res);
         }
 
-        void EvaluateBDD(BDDNode root, Dictionary<int, string> dict, Dictionary<string, bool> interpretation, bool expect)
+        [Test()]
+        public void TestDiamond()
         {
-            if (root.IsOne) {
-                Assert.True(expect);
-            } else if  (root.IsZero) {
-                Assert.IsFalse(expect);
-            } else {
-                var b = interpretation[dict[root.Id]];
-                if (b)
-                    EvaluateBDD(root.High, dict, interpretation, expect);
-                else
-                    EvaluateBDD(root.Low, dict, interpretation, expect);
-            }
+            var dict = new Dictionary<int, string> { 
+                { 0, "x0" }, 
+                { 1, "x1" }, 
+                { 2, "x2" },
+                { 3, "x3" }, 
+                { 4, "x4" }, 
+                { 5, "x5" }
+             };
+            var rdict = dict.ToDictionary ((x) => x.Value, (x) => x.Key);
+
+            var manager = new BDDManager (6);
+            manager.GetVariableString = (x) => x < 6 ? dict[x] : "sink";
+
+            var a1 = manager.Create(rdict["x0"], 0, 1);            
+            var a2 = manager.Create(rdict["x2"], 0, a1);
+            var a3 = manager.Create(rdict["x2"], a1, 1);            
+            var a4 = manager.Create(rdict["x3"], a2, a3);
+
+            var truth = BuildThruthTable(manager, a4);
+            var res = manager.Sifting(a4);
+            CheckThruthTable(truth, res);
         }
 
         // from Algorithms and data structures in VLSI design, page 124
@@ -68,17 +77,18 @@ namespace UCLouvain.BDDSharp.Tests
             var a1 = manager.Create (rdict["x3"], a3, a4);
             var a0 = manager.Create (rdict["x1"], a1, a2);
 
-//            Console.WriteLine(manager.ToDot (a0, (x) => dict[x.Index] + " (a"+(15-x.Id)+")"));
+            var truth = BuildThruthTable(manager, a0);
+            Console.WriteLine(manager.ToDot(a0, (x) => "x" + x.Index + " (" + x.RefCount.ToString() + ")"));
 
             var res = manager.Sifting (a0);
-            res = manager.Reduce (res);
-
-//            Console.WriteLine(manager.ToDot (res, (x) => dict[x.Index] + " (a"+(15-x.Id)+")"));
-            Console.WriteLine(string.Join (",", manager.VariableOrder.Select (x => dict[x])));
-
-            var order = manager.VariableOrder.Select (x => dict[x]).ToArray ();
-            // order shall be coherent with x1x2 + x3x4 + x5x6
+            Console.WriteLine(manager.ToDot(res, (x) => "x" + x.Index + " (" + x.RefCount.ToString() + ")"));
+            
+            CheckThruthTable(truth, res);
+            
+            Assert.AreEqual(8, manager.GetSize(res));
         }
+        
+        
     }
 }
 

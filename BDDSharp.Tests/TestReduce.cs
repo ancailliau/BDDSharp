@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace UCLouvain.BDDSharp.Tests
 {
     [TestFixture()]
-    public class TestReduce
+    public class TestReduce : TestBDD
     {
         [Test ()]
         public void TestReduceSimple ()
@@ -15,10 +15,12 @@ namespace UCLouvain.BDDSharp.Tests
             var n4 = manager.Create (1, n3, manager.Zero);
             var n2 = manager.Create (1, n3, manager.Zero);
             var root = manager.Create (0, n2, n4);
+
+            var truth = BuildThruthTable(manager, root);
         
-            Console.WriteLine(manager.ToDot (root, (x) => "x" + x.Index));
             var res = manager.Reduce (root);
-            Console.WriteLine(manager.ToDot (res, (x) => "x" + x.Index));
+            
+            CheckThruthTable(truth, res);
 
             Assert.AreEqual (1, res.Index);
             Assert.AreEqual (false, res.Low.Value);
@@ -37,7 +39,11 @@ namespace UCLouvain.BDDSharp.Tests
             var n4 = manager.Create (1, n2, n1);
             var n5 = manager.Create (0, n4, n3);
 
+            var truth = BuildThruthTable(manager, n5);
+
             var res = manager.Reduce (n5);
+            
+            CheckThruthTable(truth, res);
 
             Assert.AreEqual (0, res.Index);
             Assert.AreEqual (1, res.Low.Index);
@@ -76,7 +82,11 @@ namespace UCLouvain.BDDSharp.Tests
 
             var n15 = manager.Create (0, n14, n13);
 
+            var truth = BuildThruthTable(manager, n15);
+            
             var res = manager.Reduce (n15);
+            
+            CheckThruthTable(truth, res);
 
             Assert.AreEqual (0, res.Index);
             Assert.AreEqual (2, res.Low.Index);
