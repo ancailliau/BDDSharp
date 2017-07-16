@@ -675,7 +675,8 @@ namespace UCLouvain.BDDSharp
         /// </summary>
         /// <returns>The dot code.</returns>
         public string ToDot(BDDNode root, 
-                            Func<BDDNode, string> labelFunction = null)
+                            Func<BDDNode, string> labelFunction = null,
+                            bool show_all = true)
         {
             lock (unique_table_lock)
             {
@@ -697,8 +698,10 @@ namespace UCLouvain.BDDSharp
 	                    {
 	                        color = "black";
 	                    }
-	                    t.Append($"\t\t{n.Id} [label=\"{labelFunction(n)}\", " 
-	                              + "color=\"{color}\"];\n");
+
+                        if (show_all || nodes.Contains(n))
+		                    t.Append($"\t\t{n.Id} [label=\"{labelFunction(n)}\", " 
+		                              + $"color=\"{color}\"];\n");
 	                }
 	                t.Append("\t}\n");
 	            }
@@ -718,7 +721,7 @@ namespace UCLouvain.BDDSharp
 	                    {
 	                        color = "black";
 	                    }
-	                    if (n.Index < N)
+	                    if (n.Index < N && (show_all || nodes.Contains(n)))
 	                    {
 	                        t.Append($"\t{n.Id} -> {n.High.Id} [color=\"{color}\"];\n");
 	                        t.Append($"\t{n.Id} -> {n.Low.Id} [style=dotted,color=\"{color}\"];\n");
