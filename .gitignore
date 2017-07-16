@@ -4,3 +4,10 @@ BDDSharp/obj/
 BDDSharp.Tests/bin/
 BDDSharp.Tests/obj/
 *.userprefs
+./Temp/
+TestResult.xml
+bin/
+output.mlpd
+packages/
+result.txt
+testrunner/

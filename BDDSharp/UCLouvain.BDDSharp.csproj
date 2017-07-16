@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NuGet.Build.Packaging.0.1.248\build\NuGet.Build.Packaging.props" Condition="Exists('..\packages\NuGet.Build.Packaging.0.1.248\build\NuGet.Build.Packaging.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,6 +11,15 @@
     <RootNamespace>UCLouvain.BDDSharp</RootNamespace>
     <AssemblyName>UCLouvain.BDDSharp</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <PackOnBuild>true</PackOnBuild>
+    <PackageId>UCLouvain.BDDSharp</PackageId>
+    <PackageVersion>0.1.4</PackageVersion>
+    <Authors>Antoine Cailliau</Authors>
+    <PackageLicenseUrl>https://github.com/ancailliau/BDDSharp/blob/master/LICENSE</PackageLicenseUrl>
+    <Owners>Antoine Cailliau, Université catholique de Louvain</Owners>
+    <PackageProjectUrl>https://github.com/ancailliau/BDDSharp</PackageProjectUrl>
+    <PackageTags>bdd, binary decision diagram</PackageTags>
+    <Description>BDDSharp is a C# library for manipulating roBDDs (Reduced Ordered Binary Decision Diagrams).</Description>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,5 +56,9 @@
   <ItemGroup>
     <Folder Include="Table\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\NuGet.Build.Packaging.0.1.248\build\NuGet.Build.Packaging.targets" Condition="Exists('..\packages\NuGet.Build.Packaging.0.1.248\build\NuGet.Build.Packaging.targets')" />
 </Project>
