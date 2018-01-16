@@ -1,5 +1,6 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -33,12 +34,12 @@ namespace UCLouvain.BDDSharp
         /// </summary>
         /// <value>The low.</value>
         public BDDNode Low { get; set; }
-        
+
         /// <summary>
         /// Sets the low node and updates the ref count.
         /// </summary>
         /// <param name="low">Low.</param>
-        public void SetLow (BDDNode low) 
+        public void SetLow(BDDNode low)
         {
             Low = low;
             low.RefCount++;
@@ -49,12 +50,12 @@ namespace UCLouvain.BDDSharp
         /// </summary>
         /// <value>The high.</value>
         public BDDNode High { get; set; }
-        
+
         /// <summary>
         /// Sets the high node and updates the ref count.
         /// </summary>
         /// <param name="high">High.</param>
-        public void SetHigh (BDDNode high) 
+        public void SetHigh(BDDNode high)
         {
             High = high;
             high.RefCount++;
@@ -76,13 +77,27 @@ namespace UCLouvain.BDDSharp
         /// Gets all the nodes, including descendants.
         /// </summary>
         /// <value>The nodes.</value>
-        public IEnumerable<BDDNode> Nodes {
-            get {
-                if (Low == null && High == null) {
-                    return new [] { this };
-                } else {
-                    return new [] { this }.Union(Low.Nodes.Union(High.Nodes));
-                }
+        public IEnumerable<BDDNode> Nodes
+        {
+            get { return NodesWithCache(new HashSet<BDDNode>()); }
+        }
+
+        public IEnumerable<BDDNode> NodesWithCache(HashSet<BDDNode> nodes = null)
+        {
+            if (nodes.Contains(this))
+            {
+                return Enumerable.Empty<BDDNode>();
+            }
+
+            nodes.Add(this);
+            Trace.WriteLine("Enter " + this.Id);
+            if (Low == null && High == null)
+            {
+                return this.ToEnumerable();
+            }
+            else
+            {
+                return this.ToEnumerable().Concat(Low.NodesWithCache(nodes).Concat(High.NodesWithCache(nodes)));
             }
         }
 
@@ -90,11 +105,13 @@ namespace UCLouvain.BDDSharp
         /// Gets the key composed by <c>(Low.Id, High.Id)</c>
         /// </summary>
         /// <value>The key.</value>
-        public Tuple<int, int> Key {
-            get {
-                if (IsZero) return new Tuple <int, int>(-1, -1);
-                if (IsOne) return new Tuple <int, int>(-1, 0);
-                return new Tuple <int, int>(Low.Id, High.Id);
+        public Tuple<int, int> Key
+        {
+            get
+            {
+                if (IsZero) return new Tuple<int, int>(-1, -1);
+                if (IsOne) return new Tuple<int, int>(-1, 0);
+                return new Tuple<int, int>(Low.Id, High.Id);
             }
         }
 
@@ -102,8 +119,10 @@ namespace UCLouvain.BDDSharp
         /// Gets a value indicating whether this instance is the node one.
         /// </summary>
         /// <value><c>true</c> if this instance is one; otherwise, <c>false</c>.</value>
-        public bool IsOne {
-            get {
+        public bool IsOne
+        {
+            get
+            {
                 return Value != null && ((bool)Value) == true;
             }
         }
@@ -112,14 +131,15 @@ namespace UCLouvain.BDDSharp
         /// Gets a value indicating whether this instance is the node zero.
         /// </summary>
         /// <value><c>true</c> if this instance is zero; otherwise, <c>false</c>.</value>
-        public bool IsZero {
+        public bool IsZero
+        {
             get { return Value != null && ((bool)Value) == false; }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BDDSharp.BDDNode"/> class.
         /// </summary>
-        public BDDNode ()
+        public BDDNode()
         {
         }
 
@@ -132,7 +152,7 @@ namespace UCLouvain.BDDSharp
         /// <param name="index">Index of the variable the node represents</param>
         /// <param name="high">The high node (aka 1-node).</param>
         /// <param name="low">The low node (aka 0-node).</param>
-        public BDDNode (int index, BDDNode high, BDDNode low) : this ()
+        public BDDNode(int index, BDDNode high, BDDNode low) : this()
         {
             this.Index = index;
             this.High = high;
@@ -165,7 +185,7 @@ namespace UCLouvain.BDDSharp
                 High != null ? High.Id.ToString() : "null",
                 RefCount);
         }
-        
+
         /// <summary>
         /// Determines whether the specified <see cref="object"/> is equal to the current <see cref="T:UCLouvain.BDDSharp.BDDNode"/>.
         /// </summary>
@@ -174,21 +194,30 @@ namespace UCLouvain.BDDSharp
         /// <see cref="T:UCLouvain.BDDSharp.BDDNode"/>; otherwise, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
-            if (obj is BDDNode) {
+            if (obj is BDDNode)
+            {
                 var node = (BDDNode)obj;
                 return node.Id == Id && node.Low == Low && node.High == High;
             }
             return false;
         }
 
-		/// <summary>
-		/// Serves as a hash function for a <see cref="T:UCLouvain.BDDSharp.BDDNode"/> object.
-		/// </summary>
-		/// <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a hash table.</returns>
+        /// <summary>
+        /// Serves as a hash function for a <see cref="T:UCLouvain.BDDSharp.BDDNode"/> object.
+        /// </summary>
+        /// <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a hash table.</returns>
         public override int GetHashCode()
         {
-            if (Value != null) return (bool) Value ? 1 : 0;
+            if (Value != null) return (bool)Value ? 1 : 0;
             return 17 * Index + 23 * (Low.Id + 23 * High.Id);
+        }
+    }
+
+    static class IEnumerableExtensions
+    {
+        public static IEnumerable<T> ToEnumerable<T>(this T item)
+        {
+            yield return item;
         }
     }
 }
