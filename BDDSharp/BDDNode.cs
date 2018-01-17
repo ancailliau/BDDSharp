@@ -79,10 +79,10 @@ namespace UCLouvain.BDDSharp
         /// <value>The nodes.</value>
         public IEnumerable<BDDNode> Nodes
         {
-            get { return NodesWithCache(new HashSet<BDDNode>()); }
+            get { return NodesWithCache(new HashSet<BDDNode>()).Distinct(); }
         }
 
-        public IEnumerable<BDDNode> NodesWithCache(HashSet<BDDNode> nodes = null)
+        private IEnumerable<BDDNode> NodesWithCache(HashSet<BDDNode> nodes = null)
         {
             if (nodes.Contains(this))
             {
@@ -90,15 +90,12 @@ namespace UCLouvain.BDDSharp
             }
 
             nodes.Add(this);
-            Trace.WriteLine("Enter " + this.Id);
             if (Low == null && High == null)
             {
                 return this.ToEnumerable();
             }
-            else
-            {
-                return this.ToEnumerable().Concat(Low.NodesWithCache(nodes).Concat(High.NodesWithCache(nodes)));
-            }
+
+            return this.ToEnumerable().Concat(Low.NodesWithCache(nodes).Concat(High.NodesWithCache(nodes)));
         }
 
         /// <summary>
@@ -210,14 +207,6 @@ namespace UCLouvain.BDDSharp
         {
             if (Value != null) return (bool)Value ? 1 : 0;
             return 17 * Index + 23 * (Low.Id + 23 * High.Id);
-        }
-    }
-
-    static class IEnumerableExtensions
-    {
-        public static IEnumerable<T> ToEnumerable<T>(this T item)
-        {
-            yield return item;
         }
     }
 }

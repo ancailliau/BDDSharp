@@ -680,7 +680,7 @@ namespace UCLouvain.BDDSharp
         {
             lock (unique_table_lock)
             {
-	            var nodes = root.NodesWithCache(new HashSet<BDDNode>()).Distinct().ToList();
+	            var nodes = root.Nodes;
 	            var t = new StringBuilder("digraph G {\n");
 	
 	            if (labelFunction == null)
