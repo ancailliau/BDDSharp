@@ -11,3 +11,8 @@ output.mlpd
 packages/
 result.txt
 testrunner/
+/.vs/BDDSharp/v15/.suo
+/.vs/BDDSharp/v15/Server/sqlite3/storage.ide-wal
+/.vs/BDDSharp/v15/Server/sqlite3/storage.ide-shm
+/.vs/BDDSharp/v15/Server/sqlite3/storage.ide
+/.vs/BDDSharp/v15/Server/sqlite3/db.lock
