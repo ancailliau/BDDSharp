@@ -467,7 +467,7 @@ namespace UCLouvain.BDDSharp
         /// <param name="root">BDD to reduce.</param>
         public BDDNode Reduce(BDDNode root)
         {
-            var nodes = root.Nodes.ToArray();
+            var nodes = root.Nodes.Distinct().ToArray();
             var size = nodes.Length;
 
             var subgraph = new BDDNode[size];
@@ -680,7 +680,7 @@ namespace UCLouvain.BDDSharp
         {
             lock (unique_table_lock)
             {
-	            var nodes = root.Nodes.Distinct().ToList();
+	            var nodes = root.Nodes;
 	            var t = new StringBuilder("digraph G {\n");
 	
 	            if (labelFunction == null)
