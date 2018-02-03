@@ -38,7 +38,7 @@ namespace UCLouvain.BDDSharp
         /// Sets the low node and updates the ref count.
         /// </summary>
         /// <param name="low">Low.</param>
-        public void SetLow(BDDNode low)
+        public void SetLow (BDDNode low)
         {
             Low = low;
             low.RefCount++;
@@ -54,7 +54,7 @@ namespace UCLouvain.BDDSharp
         /// Sets the high node and updates the ref count.
         /// </summary>
         /// <param name="high">High.</param>
-        public void SetHigh(BDDNode high)
+        public void SetHigh (BDDNode high)
         {
             High = high;
             high.RefCount++;
@@ -135,7 +135,7 @@ namespace UCLouvain.BDDSharp
         /// <summary>
         /// Initializes a new instance of the <see cref="BDDSharp.BDDNode"/> class.
         /// </summary>
-        public BDDNode()
+        public BDDNode ()
         {
         }
 
@@ -148,7 +148,7 @@ namespace UCLouvain.BDDSharp
         /// <param name="index">Index of the variable the node represents</param>
         /// <param name="high">The high node (aka 1-node).</param>
         /// <param name="low">The low node (aka 0-node).</param>
-        public BDDNode(int index, BDDNode high, BDDNode low) : this()
+        public BDDNode (int index, BDDNode high, BDDNode low) : this()
         {
             this.Index = index;
             this.High = high;
